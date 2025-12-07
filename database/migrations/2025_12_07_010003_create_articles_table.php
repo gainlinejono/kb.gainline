@@ -33,7 +33,10 @@ return new class extends Migration
             $table->softDeletes();
 
             $table->unique(['project_id', 'slug']);
-            $table->fullText(['title', 'content']);
+
+            if (config('database.default') !== 'sqlite') {
+                $table->fullText(['title', 'content']);
+            }
         });
     }
 

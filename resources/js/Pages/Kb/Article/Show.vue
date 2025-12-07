@@ -14,6 +14,7 @@ import {
     HandThumbUpIcon as HandThumbUpSolidIcon,
     HandThumbDownIcon as HandThumbDownSolidIcon,
 } from '@heroicons/vue/24/solid';
+import Card from '@/Components/Card.vue';
 
 interface TocItem {
     level: number;
@@ -124,52 +125,33 @@ onMounted(() => {
         <div class="lg:flex lg:gap-8">
             <!-- Main Content -->
             <article class="min-w-0 flex-1">
-                <!-- Breadcrumb -->
-                <nav class="mb-6 flex items-center gap-2 text-sm text-gray-500">
-                    <Link :href="route('kb.show', project.slug)" class="hover:text-gray-900">
-                        {{ project.name }}
-                    </Link>
-                    <template v-for="(item, index) in breadcrumb" :key="item.id">
-                        <span>/</span>
-                        <Link
-                            v-if="item.type !== 'article'"
-                            :href="route('kb.group', [project.slug, item.slug])"
-                            class="hover:text-gray-900"
-                        >
-                            {{ item.name }}
-                        </Link>
-                        <span v-else class="text-gray-900">{{ item.name }}</span>
-                    </template>
-                </nav>
-
                 <!-- Article Header -->
                 <header class="mb-8">
-                    <h1 class="text-3xl font-bold tracking-tight text-gray-900">
+                    <h1 class="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">
                         {{ article.title }}
                     </h1>
                     <div class="mt-4 flex flex-wrap items-center gap-4 text-sm text-gray-500">
-                        <span class="flex items-center gap-1">
-                            <CalendarIcon class="h-4 w-4" />
-                            {{ formatDate(article.published_at) }}
-                        </span>
+                        <span>By {{ article.author.name }}</span>
+                        <span class="text-gray-300">|</span>
+                        <span>Published on {{ formatDate(article.published_at) }}</span>
+                        <span class="text-gray-300">|</span>
                         <span class="flex items-center gap-1">
                             <ClockIcon class="h-4 w-4" />
                             {{ article.reading_time || 1 }} min read
                         </span>
-                        <span>By {{ article.author.name }}</span>
                     </div>
                 </header>
 
                 <!-- Article Content -->
                 <div
-                    class="prose prose-gray max-w-none prose-headings:scroll-mt-20 prose-a:text-[var(--primary-color)] prose-a:no-underline hover:prose-a:underline"
+                    class="prose prose-lg max-w-none"
                     v-html="article.content"
                 ></div>
 
                 <!-- Feedback Section -->
                 <div class="mt-12 border-t border-gray-200 pt-8">
                     <div class="text-center">
-                        <p class="text-sm font-medium text-gray-900">Was this article helpful?</p>
+                        <p class="text-lg font-medium text-gray-900">Was this article helpful?</p>
                         <div class="mt-4 flex justify-center gap-4">
                             <button
                                 @click="submitFeedback(true)"
@@ -211,34 +193,20 @@ onMounted(() => {
                 </div>
 
                 <!-- Navigation -->
-                <div class="mt-12 grid gap-4 border-t border-gray-200 pt-8 sm:grid-cols-2">
-                    <Link
+                <div class="mt-12 grid gap-8 sm:grid-cols-2">
+                    <Card
                         v-if="prevArticle"
+                        :title="prevArticle.title"
+                        description="Previous"
                         :href="route('kb.article', [project.slug, prevArticle.slug])"
-                        class="group flex items-center gap-4 rounded-lg border border-gray-200 p-4 hover:border-gray-300 hover:shadow-sm"
-                    >
-                        <ChevronLeftIcon class="h-5 w-5 text-gray-400" />
-                        <div class="min-w-0">
-                            <p class="text-xs font-medium text-gray-500">Previous</p>
-                            <p class="truncate text-sm font-medium text-gray-900 group-hover:text-[var(--primary-color)]">
-                                {{ prevArticle.title }}
-                            </p>
-                        </div>
-                    </Link>
+                    />
                     <div v-else></div>
-                    <Link
+                    <Card
                         v-if="nextArticle"
+                        :title="nextArticle.title"
+                        description="Next"
                         :href="route('kb.article', [project.slug, nextArticle.slug])"
-                        class="group flex items-center justify-end gap-4 rounded-lg border border-gray-200 p-4 text-right hover:border-gray-300 hover:shadow-sm"
-                    >
-                        <div class="min-w-0">
-                            <p class="text-xs font-medium text-gray-500">Next</p>
-                            <p class="truncate text-sm font-medium text-gray-900 group-hover:text-[var(--primary-color)]">
-                                {{ nextArticle.title }}
-                            </p>
-                        </div>
-                        <ChevronRightIcon class="h-5 w-5 text-gray-400" />
-                    </Link>
+                    />
                 </div>
             </article>
 
@@ -248,7 +216,7 @@ onMounted(() => {
                 class="hidden w-64 flex-shrink-0 lg:block"
             >
                 <div class="sticky top-24">
-                    <h4 class="text-xs font-semibold uppercase tracking-wider text-gray-500">
+                    <h4 class="text-sm font-semibold text-gray-900">
                         On this page
                     </h4>
                     <nav class="mt-4 space-y-2">
@@ -258,7 +226,7 @@ onMounted(() => {
                             :href="'#' + item.id"
                             :class="[
                                 activeHeading === item.id
-                                    ? 'text-[var(--primary-color)] font-medium'
+                                    ? 'text-primary-500 font-medium'
                                     : 'text-gray-600 hover:text-gray-900',
                                 item.level === 3 ? 'pl-4' : '',
                                 item.level === 4 ? 'pl-8' : '',
@@ -271,7 +239,7 @@ onMounted(() => {
 
                     <!-- Related Articles -->
                     <div v-if="relatedArticles.length > 0" class="mt-8 border-t border-gray-200 pt-6">
-                        <h4 class="text-xs font-semibold uppercase tracking-wider text-gray-500">
+                        <h4 class="text-sm font-semibold text-gray-900">
                             Related articles
                         </h4>
                         <div class="mt-4 space-y-3">
@@ -279,7 +247,7 @@ onMounted(() => {
                                 v-for="related in relatedArticles"
                                 :key="related.id"
                                 :href="route('kb.article', [project.slug, related.slug])"
-                                class="block text-sm text-gray-600 hover:text-[var(--primary-color)]"
+                                class="block text-sm text-gray-600 hover:text-primary-500"
                             >
                                 {{ related.title }}
                             </Link>
@@ -290,33 +258,3 @@ onMounted(() => {
         </div>
     </KbLayout>
 </template>
-
-<style scoped>
-:deep([style*="--primary-color"]) {
-    --primary-color: v-bind('project.primary_color');
-}
-
-:deep(.prose img) {
-    border-radius: 0.5rem;
-    border: 1px solid rgb(229 231 235);
-}
-
-:deep(.prose pre) {
-    border-radius: 0.5rem;
-    background-color: rgb(17 24 39);
-}
-
-:deep(.prose code:not(pre code)) {
-    border-radius: 0.25rem;
-    background-color: rgb(243 244 246);
-    padding: 0.125rem 0.375rem;
-    font-size: 0.875rem;
-    font-weight: 400;
-    color: rgb(31 41 55);
-}
-
-:deep(.prose code:not(pre code))::before,
-:deep(.prose code:not(pre code))::after {
-    content: '';
-}
-</style>
